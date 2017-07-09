@@ -36,6 +36,7 @@ def download(videos, i, dn, length):
 	fn = fn_format(v)
 	path = os.path.join('.', dn, fn)
 	if os.path.isfile(path):
+		videos[i] = None
 		return
 	d = m_download(v[1], path)
 	last_info = ''
