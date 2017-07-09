@@ -1,4 +1,4 @@
-#HTTP大文件多线程下载
+#HTTP大文件多线程下载，支持断点续传
 
 from ThreadPool import *
 from time import sleep
@@ -16,6 +16,16 @@ def _download_bf(url, bfs, i, tmp):
 	req = urllib.Request(url)
 	req.add_header('Range', bf)
 	tmp_path = os.path.join(tmp, '%s.tmp' % i)
+	if os.path.isfile(tmp_path):
+		fsize = os.path.getsize(tmp_path)
+		range_size = bf.split('bytes=')[-1].split('-')
+		range_size = int(range_size[1]) - int(range_size[0]) + 1
+		if fsize == range_size:
+			result = (True, tmp_path)
+			bfs[i] = result
+			return
+		else:
+			os.unlink(tmp_path)
 	try:
 		res = urllib.urlopen(req)
 		with open(tmp_path, 'wb') as f:

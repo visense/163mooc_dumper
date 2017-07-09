@@ -2,7 +2,6 @@
 #coding: utf-8
 #网易公开课视频多线程批量下载
 
-from ThreadPool import *
 from dl_multithreading import download as m_download
 import urllib.request as urllib
 import re
@@ -36,6 +35,8 @@ def download(videos, i, dn, length):
 	v = videos[i]
 	fn = fn_format(v)
 	path = os.path.join('.', dn, fn)
+	if os.path.isfile(path):
+		return
 	d = m_download(v[1], path)
 	last_info = ''
 	for status in d:
