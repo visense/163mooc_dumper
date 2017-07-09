@@ -9,7 +9,7 @@ import os
 import sys
 
 _re = re.compile(r'&nbsp;&nbsp;&nbsp;&nbsp;(\S+)\s*<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\s*<a href="(\S+)" target')
-_re_name = re.compile(r'系列名称：(\S+)</p>.+下载地址')
+_re_name = re.compile(r'系列名称：(.+)</p>.+下载地址')
 
 def parse_videos(url):
 	data = b'url=' + urllib.quote(url).encode('ascii')
