@@ -55,14 +55,23 @@ def download(videos, i, dn, length):
 
 def main():
 	if len(sys.argv) == 1:
-		url = input('URL> ')
+		if os.path.isfile('tmp_url.txt'):
+			with open('tmp_url.txt') as f:
+				url = f.read()
+		else:
+			url = input('URL: ')
 	else:
 		url = sys.argv[1]
+	with open('tmp_url.txt', 'w') as f:
+		f.write(url)
 	name, videos = parse_videos(url)
 	length = len(videos)
 	if not os.path.isdir(name): os.makedirs(name)
 	for i in range(length):
-		download(videos, i, name, length)
+		try:
+			download(videos, i, name, length)
+		except KeyboardInterrupt:
+			os._exit(1)
 
 if __name__ == '__main__':
 	main()
