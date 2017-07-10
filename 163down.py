@@ -72,6 +72,8 @@ def main():
 			download(videos, i, name, length)
 		except KeyboardInterrupt:
 			os._exit(1)
+	if os.path.isfile('tmp_url.txt'):
+		os.unlink('tmp_url.txt')
 
 if __name__ == '__main__':
 	main()

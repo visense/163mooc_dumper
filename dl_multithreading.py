@@ -3,18 +3,16 @@
 from ThreadPool import *
 from time import sleep
 import os
-import urllib.request as urllib
+import requests
 
 def _len(url):
-	req = urllib.Request(url)
-	req.get_method = lambda:'HEAD'
-	length = urllib.urlopen(req).info().get('Content-Length')
-	if length: return int(length)
+	with requests.head(url) as r:
+		length = r.headers['Content-Length']
+	return int(length) if length else 0
 
 def _download_bf(url, bfs, i, tmp):
 	bf = bfs[i][1]
-	req = urllib.Request(url)
-	req.add_header('Range', bf)
+	headers = {'Range': bf}
 	tmp_path = os.path.join(tmp, '%s.tmp' % i)
 	if os.path.isfile(tmp_path):
 		fsize = os.path.getsize(tmp_path)
@@ -27,10 +25,12 @@ def _download_bf(url, bfs, i, tmp):
 		else:
 			os.unlink(tmp_path)
 	try:
-		res = urllib.urlopen(req)
+		res = requests.get(url, headers=headers, timeout=2)
+		res.raise_for_status()
 		with open(tmp_path, 'wb') as f:
-			f.write(res.read())
+			f.write(res.content)
 	except:
+		print('try again:', url, headers)
 		if os.path.isfile(tmp_path): os.unlink(tmp_path)
 		_download_bf(url, bfs, i, tmp)
 		return
