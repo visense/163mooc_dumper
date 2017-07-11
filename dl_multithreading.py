@@ -6,9 +6,25 @@ import os
 import requests
 
 def _len(url):
-	with requests.head(url) as r:
-		length = r.headers['Content-Length']
-	return int(length) if length else 0
+	headers = {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML\
+		, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
+		'Range': 'bytes=0-0',
+		'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+	}
+	with requests.get(url, headers=headers) as r:
+		length = r.headers['Content-Range']
+		if length.find('0-0/') == -1:
+			length = None
+		else:
+			length = length.split('0-0/')[-1]
+			length = int(length) if length else 0
+	if not length:
+		del headers['Range']
+		with requests.head(url, headers=headers) as r:
+			length = r.headers['Content-Length']
+			length = int(length) if length else 0
+	return length
 
 def _download_bf(url, bfs, i, tmp):
 	bf = bfs[i][1]
@@ -104,6 +120,9 @@ if __name__ == '__main__':
 			url = urls[i]
 			filename = url.split('/')[-1]
 			filepath = os.path.join(dirname, filename)
+			if os.path.isfile(filepath):
+				print('%s/%s %s -> %s' % (i+1, num, url, filepath))
+				continue
 			downloading = download(url, filepath)
 			last_info = ''
 			for status in downloading:
