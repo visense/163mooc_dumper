@@ -30,7 +30,6 @@ def _download_bf(url, bfs, i, tmp):
 		with open(tmp_path, 'wb') as f:
 			f.write(res.content)
 	except:
-		print('try again:', url, headers)
 		if os.path.isfile(tmp_path): os.unlink(tmp_path)
 		_download_bf(url, bfs, i, tmp)
 		return
@@ -91,11 +90,30 @@ def download(url, fn, threads=30, bfsz=1048576, sep=0.2):
 	yield 'done'
 
 if __name__ == '__main__':
-	url = 'http://mov.bn.netease.com/open-movie/nos/mp4/2014/08/22/SA3B20K2U_sd.mp4'
-	fn = 'test.mp4'
-	d = download(url, fn)
-	for i in d:
-		if type(i) == tuple:
-			print('%s %s/%s' % i)
-		else:
-			print(i)
+	import sys
+	if len(sys.argv) == 1:
+		sys._exit(0)
+	dirname = '.'
+	if len(sys.argv) == 3:
+		dirname = os.path.join('.', sys.argv[2])
+		if not os.path.isdir(dirname): os.makedirs(dirname)
+	with open(sys.argv[1]) as f:
+		urls = [i.strip() for i in f]
+		num = len(urls)
+		for i in range(num):
+			url = urls[i]
+			filename = url.split('/')[-1]
+			filepath = os.path.join(dirname, filename)
+			downloading = download(url, filepath)
+			last_info = ''
+			for status in downloading:
+				if type(status) == tuple:
+					info = ('%s %s/%s: ' % status) + url
+				elif status == 'Merging...':
+					info = '%s -> Merging to... -> %s' % (url, filename)
+				if info != last_info:
+					print(' ' * len(last_info),end='\r')
+					print(info,end='\r')
+					last_info = info
+			print(' '*len(info),end='\r')
+			print('%s/%s %s -> %s' % (i+1, num, url, filepath))

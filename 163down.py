@@ -47,10 +47,12 @@ def download(videos, i, dn, length):
 		elif status == 'Merging...':
 			info = '%s -> Merging to... -> %s' % (v[0], fn)
 		if info != last_info:
-			print(info)
+			print(' ' * len(last_info),end='\r')
+			print(info,end='\r')
 			last_info = info
 	videos[i] = None
 	num = count(videos)
+	print(' '*len(info),end='\r')
 	print('%s/%s %s -> %s' % (num, length, v[0], path))
 
 def main():
